@@ -12,6 +12,9 @@ Faça algumas consultas importantes usando Cypher e justifique porque são impor
 
 Grave um vídeo de até 10 minutos, publique-o como NÃO LISTADO no youtube e acrescente o endereço do vídeo como resposta desta tarefa.
 
+Link para o [Sandbox do Neo4j: https://sandbox.neo4j.com/](https://sandbox.neo4j.com/).
+
+
 ## Conceitos
 
 Aqui vamos discutir a modalagem do banco de dados:
@@ -205,3 +208,8 @@ MATCH (f:PESSOA)
 WHERE f.nome='Pedro Miguel Pacheco'
 CREATE (f)-[:MATRICULA {ra:25000203}]-> (cec)
 ```
+
+
+## Vendo os pré-requisitos.
+
+MATCH p=()-[:PRE_REQUISITO]->() RETURN p LIMIT 25;

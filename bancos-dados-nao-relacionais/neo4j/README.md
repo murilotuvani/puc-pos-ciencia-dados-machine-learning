@@ -51,6 +51,12 @@ Resultado:
 {'nome': 'Sara Nogueira', 'data_nascimento': datetime.date(1989, 4, 17), 'idade': 36}
 ```
 
+Limpando o banco de dados
+
+```
+MATCH (n) DETACH DELETE n
+```
+
 Convertendo para Cipher
 ```
 CREATE (p:PESSOA {nome: 'Pedro Miguel Pacheco', data_nascimento: date({year: 1984, month: 6, day: 24}), idade: 40});
@@ -85,6 +91,9 @@ CREATE (mcalc1:MATERIA {titulo: 'Cálculo I', carga_horaria: 110});
 CREATE (mcalc2:MATERIA {titulo: 'Cálculo II', carga_horaria: 90});
 CREATE (malgo:MATERIA {titulo: 'Algorítmos', carga_horaria: 96});
 CREATE (mbdnr:MATERIA {titulo: 'Bancos de Dados não Relacionais', carga_horaria: 92});
+CREATE (esta:MATERIA {titulo: 'Estatística', carga_horaria: 80});
+CREATE (plpr:MATERIA {titulo: 'Paradigmas de Linguagens de Programação', carga_horaria: 96});
+CREATE (inia:MATERIA {titulo: 'Introdução a Inteligência Artificial', carga_horaria: 78});
 ```
 
 Criando a grade curricular
@@ -116,9 +125,16 @@ WHERE mcalc2.titulo='Cálculo II'
 MATCH (malgo:MATERIA)
 WHERE malgo.titulo='Algorítmos'
 
+MATCH (esta:MATERIA)
+WHERE esta.titulo='Estatística'
+MATCH (plpr:MATERIA)
+WHERE plpr.titulo='Paradigmas de Linguagens de Programação'
+MATCH (inia:MATERIA)
+WHERE inia.titulo='Introdução a Inteligência Artificial'
 
 CREATE (mcalc1)-[cm_mcalc1:COMPOEM]-> (cm)
 CREATE (mcalc2)-[cm_mcalc2:COMPOEM]-> (cm)
+CREATE (esta)-[cm_mesta:COMPOEM]-> (cm)
 
 CREATE (malgo)-[cas_algo:COMPOEM]-> (cas)
 CREATE (mcalc1)-[cas_mcalc1:COMPOEM]-> (cas)
@@ -126,7 +142,23 @@ CREATE (mcalc1)-[cas_mcalc1:COMPOEM]-> (cas)
 CREATE (mcalc1)-[cec_mcalc1:COMPOEM]-> (cec)
 CREATE (mcalc2)-[cec_mcalc2:COMPOEM]-> (cec)
 CREATE (malgo)-[cec_algo:COMPOEM]-> (cec)
+
+CREATE (esta)-[cec_esta:COMPOEM]-> (cec)
+CREATE (inia)-[cec_inia:COMPOEM]-> (cec)
+CREATE (plpr)-[cec_plpr:COMPOEM]-> (cec)
 ```
+
+Vendo a composição dos curos
+```
+MATCH (m:MATERIA)-[o:COMPOEM]->(c:CURSO)
+RETURN c.titulo as Curso, c.tipo as Nível, m.titulo as Matéria
+ORDER BY c.titulo, m.titulo
+```
+
+
+Criando as dependências (pré-requisitos) 
+
+Pré-requisitos de Cálculo II
 
 ```
 MATCH (mcalc1:MATERIA)
@@ -135,6 +167,30 @@ MATCH (mcalc2:MATERIA)
 WHERE mcalc2.titulo='Cálculo II'
 
 CREATE (mcalc1)-[:PRE_REQUISITO]-> (mcalc2)
+```
+
+Pré-requisitos de Introdução a Inteligência Artificial
+
+```
+MATCH (malgo:MATERIA)
+WHERE malgo.titulo='Algorítmos'
+MATCH (esta:MATERIA)
+WHERE esta.titulo='Estatística'
+MATCH (plpr:MATERIA)
+WHERE plpr.titulo='Paradigmas de Linguagens de Programação'
+MATCH (inia:MATERIA)
+WHERE inia.titulo='Introdução a Inteligência Artificial'
+
+CREATE (malgo)-[:PRE_REQUISITO]-> (plpr)
+CREATE (plpr)-[:PRE_REQUISITO]-> (inia)
+CREATE (esta)-[:PRE_REQUISITO]-> (inia)
+```
+
+Exibe a matéria de Introdução a Inteligência Artificial a sua árvore de pré requisitos.
+```
+MATCH (prereq:MATERIA)-[:PRE_REQUISITO*1..]->(inia:MATERIA)
+WHERE inia.titulo = 'Introdução a Inteligência Artificial'
+RETURN prereq, inia
 ```
 
 Como ficaram os dados
